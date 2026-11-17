@@ -1,0 +1,19 @@
+# server/.gitignore
+# Зависимости Node.js
+node_modules/
+
+# Секреты — пароли и JWT_SECRET
+.env
+
+# Собранный фронтенд
+dist/
+build/
+
+# Логи
+*.log
+npm-debug.log*
+
+# Кэш и системный мусор
+.DS_Store
+Thumbs.db
+.vscode/
