@@ -21,19 +21,24 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('token', res.data.accessToken);
     setUser(res.data.user);
     return res.data.user;
   }
 
   async function register(email, password, name) {
     const res = await api.post('/auth/register', { email, password, name });
-    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('token', res.data.accessToken);
     setUser(res.data.user);
     return res.data.user;
   }
 
-  function logout() {
+    async function logout() {
+    try {
+      await api.post('/auth/logout');
+    } catch (e) {
+      console.error('Ошибка при выходе:', e);
+    }
     localStorage.removeItem('token');
     setUser(null);
   }

@@ -1,0 +1,46 @@
+services:
+  # 1. База данных PostgreSQL
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ads_board
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Автоматически создаем таблицы из нашего schema.sql при первом старте
+      - ./server/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # 2. Redis (хранилище Refresh-токенов)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+    # 3. Бэкенд (Node.js)
+  backend:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:admin@db:5432/ads_board
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=super_secret_access
+      - JWT_REFRESH_SECRET=super_secret_refresh
+      - PORT=5000
+    depends_on:
+      - db
+      - redis
+
+  # 4. Фронтенд (Vite)
+  frontend:
+    build: ./client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
